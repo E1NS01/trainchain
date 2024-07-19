@@ -1,58 +1,87 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { BlockStorageService } from 'src/block-storage/block-storage.service';
 import { Block } from 'src/classes/block';
+import { IndexService } from 'src/index/index.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ChainService {
   private logger = new Logger('ChainService');
   public chain = [];
-  public difficulty = 5;
+  public difficulty = 1;
+  public checkBlock = this.getLastBlock();
+
+  constructor(
+    private blockStorage: BlockStorageService,
+    private indexService: IndexService,
+  ) {}
+
   generateGenesisBlock() {
     const date = new Date();
     this.logger.log('Generating Genesis Block');
-    return new Block(0, date, 'Genesis Block', '0');
+    const hash = crypto.createHash('sha256').update('Genesis').digest('hex');
+    const dataHash = crypto
+      .createHash('sha256')
+      .update(JSON.stringify({ type: 'Genesis' }))
+      .digest('hex');
+    return new Block(0, date, dataHash, hash, hash, 0);
   }
   getLastBlock(): Block {
-    return this.chain.slice(-1)[0];
+    return this.blockStorage.getLastBlock();
   }
-  /* generateBlock(data) {
-    const lastBlock: Block = this.getLastBlock();
-    const index = lastBlock.index + 1;
-    const timestamp = new Date();
-    const previousHash = lastBlock.hash;
-    return new Block(index, timestamp, data, previousHash);
-  } */
-  addBlock(block) {
-    this.chain.push(block);
-    return this.chain;
+  async addBlock(block) {
+    await this.blockStorage.appendBlock(block);
+
+    const blockLocation = {
+      fileNumber: this.blockStorage.currentFile,
+      offset: this.blockStorage.currentFileSize,
+    };
+    await this.indexService.addBlockIndex(
+      block.hash,
+      blockLocation.fileNumber,
+      blockLocation.offset,
+    );
   }
   isValidChain() {
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
       const previousBlock = this.chain[i - 1];
-      if (currentBlock.hash !== currentBlock.calculateHash()) {
-        return false;
-      }
       if (currentBlock.previousHash !== previousBlock.hash) {
         return false;
       }
     }
     return true;
   }
-  verifyBlock(block: Block) {
-    /* if (block.index !== this.getLastBlock().index + 1) {
-      console.log('Invalid index', block.index, this.getLastBlock().index);
+  async verifyBlock(block: Block) {
+    const lastBlock = await this.getLastBlock();
+    if (block.index !== lastBlock.index + 1) {
       return false;
     }
-    if (block.previousHash !== this.getLastBlock().hash) {
-      console.log('Invalid previous hash');
+    if (block.previousHash !== lastBlock.hash) {
       return false;
-    } */
+    }
     const regex = new RegExp(`^0{${this.difficulty}}`);
 
     if (!regex.test(block.hash)) {
-      console.log('Invalid hash');
       return false;
     }
     return true;
+  }
+
+  async adjustDifficulty() {
+    const lastBlock = await this.getLastBlock();
+
+    if (
+      Number(lastBlock.timestamp) - Number(this.checkBlock.timestamp) <
+      200000
+    ) {
+      this.difficulty++;
+      this.logger.log('Difficulty increased to ' + this.difficulty);
+    } else {
+      console.log(Number(lastBlock.timestamp) - Number(this.checkBlock));
+      this.difficulty--;
+      this.logger.log('Difficulty decreased to ' + this.difficulty);
+    }
+    this.checkBlock = lastBlock;
   }
 }

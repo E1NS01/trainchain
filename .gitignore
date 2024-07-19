@@ -3,6 +3,10 @@
 /node_modules
 /build
 
+# db data
+/blockchain
+/blockchain-index
+
 # Logs
 logs
 *.log
