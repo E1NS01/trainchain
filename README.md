@@ -51,7 +51,14 @@ npm run start:prod
 
 This project is structured as follows:
 
--src/: Contains the source code of the application. - block-storage/: Module for blockchain data storage. - app.module.ts: The root module of the application. - chain/: Module for blockchain logic and operations. - classes/: Definitions of blockchain entities like Block and Transaction. - constants/: Constants used across the application. - main.ts: Entry point of the application.
+- src/: Contains the source code of the application.
+
+  - block-storage/: Module for blockchain data storage.
+  - app.module.ts: The root module of the application.
+  - chain/: Module for blockchain logic and operations.
+  - classes/: Definitions of blockchain entities like Block and Transaction.
+  - constants/: Constants used across the application.
+  - main.ts: Entry point of the application.
 
 - test/: Contains end-to-end tests.
 - blockchain/: Directory for blockchain data storage (ignored by git).
