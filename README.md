@@ -21,7 +21,7 @@ Trainchain Node is a blockchain-based project designed to provide a robust and s
 1. Clone the repository:
 
 ```sh
-git clone https://github.com/your-repository/trainchain-node.git
+git clone https://github.com/E1NS01/trainchain.git
 cd trainchain-node
 ```
 
