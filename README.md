@@ -7,7 +7,6 @@ Trainchain Node is a blockchain-based project designed to provide a robust and s
 - **Blockchain Storage**: Utilizes a custom block storage mechanism to efficiently store and retrieve blockchain data.
 - **Modular Architecture**: Built with a modular approach using NestJS modules, making it easy to extend and maintain.
 - **Real-time Communication**: Supports real-time communication through WebSockets, enabling dynamic data exchange.
-- **Comprehensive Testing**: Includes unit and end-to-end testing setups to ensure code reliability and quality.
 
 ## Getting Started
 
